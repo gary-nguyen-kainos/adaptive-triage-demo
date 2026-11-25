@@ -9,28 +9,28 @@ export function Comparison({ evidence }: { evidence: Evidence }) {
   const adaptive = evaluateQuestions(evidence);
   return (
     <section className="card comparison">
-      <div className="card-heading"><div><span className="eyebrow">TWO WAYS TO REASON</span><h2>A pathway is not a probability model.</h2></div><span className="badge">Illustrative comparison</span></div>
-      <p>Both approaches can use the same patient answers. They differ in how those answers are represented and how the next question is chosen.</p>
+      <div className="card-heading"><div><span className="eyebrow">PATHWAY VS NETWORK</span><h2>How is a fixed pathway different from the probability network?</h2></div><span className="badge">Example comparison</span></div>
+      <p>A pathway asks questions in a set order. A probability network updates its estimates and picks the next question based on the answers so far.</p>
       <div className="comparison-columns">
-        <div className="pathway-pane"><h3><GitBranch size={19} />Deterministic pathway</h3><p>A predefined order and fixed branches.</p>
+        <div className="pathway-pane"><h3><GitBranch size={19} />Fixed pathway</h3><p>Questions follow a set order and set of branches.</p>
           {fixedSequence.map((id, index) => <div key={id}>
             <div className={`pathway-step ${index === nextIndex ? 'current-branch' : ''} ${stop >= 0 && index > stop ? 'inactive-branch' : ''}`}>
-              <span className="step-number">{index + 1}</span><div><strong>{BY_ID[id].label}?</strong><small>{evidence[id] !== undefined ? `Answer: ${answerLabel(evidence[id]!)}${BY_ID[id].mandatory && evidence[id] === 'present' ? ' → escalation branch' : ' → continue'}` : 'No → next fixed question'}{evidence[id] === undefined && BY_ID[id].mandatory ? ' · Yes → escalation' : ''}</small></div>
-              {index === nextIndex && <span className="tiny-tag">{stop >= 0 ? 'Escalate' : 'Next'}</span>}
+              <span className="step-number">{index + 1}</span><div><strong>{BY_ID[id].label}?</strong><small>{evidence[id] !== undefined ? `Answer: ${answerLabel(evidence[id]!)}${BY_ID[id].mandatory && evidence[id] === 'present' ? ' → safety action' : ' → continue'}` : 'No → continue'}{evidence[id] === undefined && BY_ID[id].mandatory ? ' · Yes → safety action' : ''}</small></div>
+              {index === nextIndex && <span className="tiny-tag">{stop >= 0 ? 'Safety action' : 'Next'}</span>}
             </div>{index < fixedSequence.length - 1 && <ArrowDown className="pathway-arrow" size={16} />}
           </div>)}
-          <div className="info-note">The next question follows fixed pathway logic, even if a different question would reduce more uncertainty.</div>
+          <div className="info-note">It asks the next question in its set order, even if another question might tell us more about urgency.</div>
         </div>
-        <div className="adaptive-pane"><h3><Network size={19} />Adaptive Bayesian network</h3><p>One answer updates several connected beliefs.</p>
-          <div className="adaptive-step"><span>01</span><div><strong>Observe evidence</strong><p>Keep the complete set of current answers; corrections replace evidence, not the model.</p></div></div>
-          <div className="adaptive-step"><span>02</span><div><strong>Infer patient-specific probabilities</strong><p>Recalculate hidden-condition and acuity distributions using Bayes' rule.</p></div></div>
-          <div className="adaptive-step"><span>03</span><div><strong>Evaluate unanswered questions</strong><p>Estimate how each possible answer would change acuity entropy.</p></div></div>
-          <div className="adaptive-step"><span><ShieldCheck size={16} /></span><div><strong>Apply safety-first selection</strong><p>{adaptive.selected ? `Next: ${BY_ID[adaptive.selected].label}. ${BY_ID[adaptive.selected].mandatory ? 'Chosen by mandatory safety order.' : 'Chosen by expected information gain.'}` : adaptive.stopped ? 'Safety override: ordinary optimisation stopped.' : 'All candidate questions answered.'}</p></div></div>
-          <div className="info-note">Arrows represent probabilistic dependencies, not question order. Evidence can update beliefs in the reverse direction of an arrow.</div>
+        <div className="adaptive-pane"><h3><Network size={19} />Probability network</h3><p>One answer can update estimates for several connected features and conditions.</p>
+          <div className="adaptive-step"><span>01</span><div><strong>Add answers</strong><p>Keep all current answers. Changing one updates estimates, not the network.</p></div></div>
+          <div className="adaptive-step"><span>02</span><div><strong>Update estimates</strong><p>Recalculate possible conditions and urgency from the answers so far.</p></div></div>
+          <div className="adaptive-step"><span>03</span><div><strong>Compare remaining questions</strong><p>Estimate which answers may make the urgency estimate clearer.</p></div></div>
+          <div className="adaptive-step"><span><ShieldCheck size={16} /></span><div><strong>Choose the next question</strong><p>{adaptive.selected ? `Next: ${BY_ID[adaptive.selected].label}. ${BY_ID[adaptive.selected].mandatory ? 'Asked first as a safety question.' : 'Expected to clarify urgency most.'}` : adaptive.stopped ? 'A safety rule is active. Regular questions are paused.' : 'No questions remain unanswered.'}</p></div></div>
+          <div className="info-note">Arrows show possible links, not question order. An answer can update estimates for related items either way.</div>
         </div>
       </div>
-      <div className="mapping-example"><span className="eyebrow">FROM PATHWAY ANSWER TO EVIDENCE</span><div><span>“Are you unable to swallow fluids?”<small>Pathway question</small></span><ArrowRight size={20} /><span>“Yes”<small>Patient answer</small></span><ArrowRight size={20} /><code>unable_to_swallow_fluids = present<small>Bayesian-network evidence</small></code></div></div>
-      <p className="small">Existing pathways may provide clinically relevant questions, possible answers, clinical concepts, safety rules, and historical episodes and outcomes. A pathway branch should <strong>not</strong> automatically become an edge in the Bayesian network; dependencies require modelling and clinical agreement.</p>
+      <div className="mapping-example"><span className="eyebrow">TURN AN ANSWER INTO NETWORK INPUT</span><div><span>“Are you unable to swallow fluids?”<small>Pathway question</small></span><ArrowRight size={20} /><span>“Yes”<small>Patient answer</small></span><ArrowRight size={20} /><code>unable_to_swallow_fluids = present<small>What the network records</small></code></div></div>
+      <p className="small">A pathway can suggest useful questions, answers, and safety rules. Its branches do not automatically become links in the network; those links need separate modelling and clinical agreement.</p>
     </section>
   );
 }

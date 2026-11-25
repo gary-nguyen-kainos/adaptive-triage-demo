@@ -1,16 +1,16 @@
 import { ArrowLeft, ArrowRight, RotateCcw, X } from 'lucide-react';
 
 export const GUIDE_STEPS = [
-  { title: 'Meet the fixed network', text: 'Every node is a random variable, not a category in a hierarchy. The arrows describe probabilistic dependencies. This model stays fixed throughout the assessment.' },
-  { title: 'Start with prior beliefs', text: 'Before answers are entered, the synthetic tables define prior distributions. States within each node sum to 100%; probabilities across nodes do not.' },
-  { title: 'Ask one patient question', text: 'The guided example asks about breathing difficulty. In normal selection this is the first mandatory safety check, regardless of information gain.' },
-  { title: 'Turn the answer into evidence', text: 'The example answer is No. The model receives breathing_difficulty = absent. An observable feature has become observed evidence.' },
-  { title: 'Recalculate for this patient', text: 'Exact Bayesian inference conditions on the complete evidence set. The model has not changed. Its beliefs for this patient have changed because new evidence was entered.' },
-  { title: 'See what changed', text: 'Breathing difficulty is now observed as absent. Serious hidden-condition probabilities and immediate acuity decrease. Beliefs update in reverse along arrows. A high probability is not a confirmed diagnosis.' },
-  { title: 'Evaluate possible questions', text: 'Open Inspect question ranking below. Every unanswered question has predicted answers and an expected reduction in acuity entropy. The near-balanced cough question provides little useful acuity information.' },
-  { title: 'Choose safely, then informatively', text: 'Safety comes before information gain. The next question asks about swallowing fluids because it is still a mandatory safety check. Once safety checks are answered, ordinary questions are ranked by expected information gain.' },
-  { title: 'Estimate acuity, not diagnosis', text: 'Acuity describes urgency of clinical need. Review all four Bayesian acuity states. Try the airway-concern scenario later to see a safety override and a separate safety-adjusted distribution.' },
-  { title: 'Apply a separate policy', text: 'The Bayesian network estimates acuity. A separately governed policy maps acuity probabilities to a service, action or time band. All thresholds and time bands here are synthetic and illustrative.' },
+  { title: 'Look at the network', text: 'Each box is a feature or possible condition. Arrows show how they may be connected. They do not show the order of questions. The network itself stays the same during the demo.' },
+  { title: 'See the starting estimates', text: 'Before any answers, the network shows its starting probabilities. These are made-up example numbers. Each box has its own probabilities, so numbers in different boxes do not need to add up to 100%.' },
+  { title: 'Look at the first question', text: 'The example asks whether the patient has trouble breathing. This is a safety question, so it comes first. Click Next to record the example answer, “No”.' },
+  { title: 'The answer is recorded', text: 'The example answer is now in the patient’s answer list. It tells the network that breathing difficulty is absent.' },
+  { title: 'See the estimates update', text: 'The network has not changed. It has recalculated its estimates using the new answer. Look at the updated probabilities for this patient.' },
+  { title: 'Notice what changed', text: 'Breathing difficulty is marked as absent. Some estimates for serious conditions and urgent care go down. These are estimates, not confirmed diagnoses.' },
+  { title: 'Review the question list', text: 'Scroll down to “Inspect question ranking”. It compares the unanswered questions and how much each may help estimate urgency. A balanced answer is not always useful.' },
+  { title: 'Safety questions come first', text: 'The next example question is about swallowing fluids. It comes before ordinary questions because it is a safety check. After safety checks, questions are ranked by how useful their answers may be.' },
+  { title: 'Look at urgency, not diagnosis', text: 'The chart shows four levels of urgency, with uncertainty across them. Try the airway-concern scenario later to see how a safety rule can raise the urgency estimate.' },
+  { title: 'See how the example policy works', text: 'The network estimates urgency. A separate example policy turns those estimates into an action or time band. Its rules and numbers are made up for this demo.' },
 ] as const;
 
 export function Guide({ step, onNext, onBack, onReplay, onExit }: {

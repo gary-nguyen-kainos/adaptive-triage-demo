@@ -33,13 +33,13 @@ export interface Disposition { band: string; action: string; reason: string }
 export function disposition(distribution: Distribution, evidence: Evidence): Disposition {
   const override = safetyOverride(evidence);
   if (override?.source === 'breathing_difficulty' || override?.source === 'drooling' || distribution[0] >= 0.2) {
-    return { band: 'Immediate', action: 'Illustrative immediate assessment', reason: override ? 'Safety escalation and / or immediate probability threshold.' : 'Immediate probability is at least 20%.' };
+    return { band: 'Immediate', action: 'Illustrative immediate assessment', reason: override ? 'An example safety rule applies, or the immediate estimate is at least 20%.' : 'The immediate estimate is at least 20%.' };
   }
   if (override || distribution[0] + distribution[1] >= 0.35) {
-    return { band: 'Urgent', action: 'Illustrative same-day assessment', reason: 'Safety escalation or combined immediate + urgent probability is at least 35%.' };
+    return { band: 'Urgent', action: 'Illustrative same-day assessment', reason: 'An example safety rule applies, or the immediate and urgent estimates total at least 35%.' };
   }
   if (distribution[0] + distribution[1] + distribution[2] >= 0.4) {
-    return { band: 'Soon', action: 'Illustrative assessment within 48 hours', reason: 'Combined immediate + urgent + soon probability is at least 40%.' };
+    return { band: 'Soon', action: 'Illustrative assessment within 48 hours', reason: 'The immediate, urgent, and soon estimates total at least 40%.' };
   }
-  return { band: 'Routine or self-care', action: 'Illustrative routine / self-care information', reason: 'No safety override and all escalation thresholds are below their synthetic cut-offs.' };
+  return { band: 'Routine or self-care', action: 'Illustrative routine / self-care information', reason: 'None of the example safety rules or thresholds were met.' };
 }

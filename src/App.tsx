@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
-  ArrowRight, BookOpen, Check, ChevronRight, CircleHelp, ClipboardList, FlaskConical,
+  ArrowRight, Check, ChevronRight, CircleHelp, ClipboardList, FlaskConical,
   GitCompareArrows, Layers, LockKeyhole, Network, Play, RotateCcw, ShieldAlert, Sparkles, X,
 } from 'lucide-react';
 import { BY_ID, CONDITIONS, DISCLAIMER, MODEL_VERSION, NETWORK, answerLabel, type NodeId, type Posteriors } from './model/network';
@@ -91,16 +91,6 @@ function App() {
   }
   return (
     <div className="app">
-      <aside className="rail" aria-label="Primary navigation">
-        <a className="brand-mark" href="#main" aria-label="Adaptive Triage learning lab"><Network size={26} /></a>
-        <div className="rail-links">
-          <button onClick={() => setTab('workspace')} className={tab === 'workspace' ? 'active' : ''} aria-label="Network workspace" title="Network workspace"><Layers size={21} /><span>Explore</span></button>
-          <button onClick={startGuide} className={mode === 'guided' ? 'active' : ''} aria-label="Start guided demo" title="Guided demo"><BookOpen size={21} /><span>Guide</span></button>
-          <button onClick={() => setTab('comparison')} className={tab === 'comparison' ? 'active' : ''} aria-label="Pathway comparison" title="Pathway comparison"><GitCompareArrows size={21} /><span>Compare</span></button>
-        </div>
-        <button className={`rail-help ${tab === 'principles' ? 'active' : ''}`} onClick={() => setTab('principles')} aria-label="Modelling principles"><CircleHelp size={21} /><span>About</span></button>
-        <span className="rail-bottom">LAB<br />01</span>
-      </aside>
       <div className="main-shell">
         <header className="topbar">
           <div className="wordmark">adaptive<span>triage</span><span className="wordmark-divider" /><small>Learning lab</small></div>
@@ -108,14 +98,14 @@ function App() {
         </header>
         <main id="main">
           <div className="page-heading">
-            <div><div className="breadcrumb">ONBOARDING <ChevronRight size={12} /> BAYESIAN NETWORKS <ChevronRight size={12} /> SORE THROAT</div><h1>A sore throat. A connected picture.</h1><p>Explore how evidence changes beliefs — without changing the model.</p></div>
+            <div><div className="breadcrumb">ONBOARDING <ChevronRight size={12} /> BAYESIAN NETWORKS <ChevronRight size={12} /> SORE THROAT</div><h1>Sore throat probabilistic network</h1><p>Explore how patient answers change the network’s estimates, not the model itself.</p></div>
             <div className="mode-switch" aria-label="Viewing mode"><button className={mode === 'explore' ? 'selected' : ''} onClick={() => setMode('explore')}><Layers size={15} />Explore</button><button className={mode === 'guided' ? 'selected' : ''} onClick={startGuide}><Play size={14} />Guided demo</button></div>
           </div>
 
           {mode === 'guided' && <Guide step={guideStep} onBack={() => goGuide(guideStep - 1)} onNext={() => guideStep === 9 ? setMode('explore') : goGuide(guideStep + 1)} onReplay={startGuide} onExit={() => setMode('explore')} />}
 
           <div className="workspace-tabs">
-            <div><button className={tab === 'workspace' ? 'active' : ''} onClick={() => setTab('workspace')}><Network size={16} />Network workspace</button><button className={tab === 'comparison' ? 'active' : ''} onClick={() => setTab('comparison')}><GitCompareArrows size={16} />Pathway comparison</button><button className={tab === 'principles' ? 'active' : ''} onClick={() => setTab('principles')}><CircleHelp size={16} />Model principles</button></div>
+            <div><button className={tab === 'workspace' ? 'active' : ''} onClick={() => setTab('workspace')}><Network size={16} />Explore network</button><button className={tab === 'comparison' ? 'active' : ''} onClick={() => setTab('comparison')}><GitCompareArrows size={16} />Pathway comparison</button><button className={tab === 'principles' ? 'active' : ''} onClick={() => setTab('principles')}><CircleHelp size={16} />Model principles</button></div>
             <span className="synthetic-label"><span />ALL PROBABILITIES ARE SYNTHETIC</span>
           </div>
 
@@ -183,25 +173,38 @@ function App() {
               </section>
 
               <section className={`card disposition ${override ? 'escalated' : ''}`}>
-                <span className="eyebrow">SEPARATE / ILLUSTRATIVE POLICY</span><h2>From acuity to action</h2><p className="small">Acuity is urgency of need — not the diagnosis.</p>
-                {override && <div className="adjusted-distribution"><h3>Safety-adjusted acuity</h3><p>Separate cumulative urgency floors can only increase urgency, never reduce it.</p>{BY_ID.acuity.states.map((state, i) => <div key={state}><span>{state}</span><strong>{percent(adjusted[i])}</strong></div>)}</div>}
-                <div className="disposition-result"><span className="badge">{outcome.band}</span><h3>{outcome.action}</h3><p>{outcome.reason}</p></div>
-                <p className="small">The Bayesian network estimates acuity. A separately governed policy maps acuity probabilities to a service, action or time band.</p>
-                <details className="technical-details"><summary>Synthetic thresholds &amp; safety floors</summary><p>Immediate: immediate ≥20%, or breathing / drooling override.<br />Urgent: immediate + urgent ≥35%, or fluids override.<br />Soon: immediate + urgent + soon ≥40%.<br />Otherwise: routine / self-care.</p><p>Safety floors (Immediate / Urgent / Soon / Routine): breathing 98 / 1.5 / 0.4 / 0.1%; fluids 35 / 64 / 0.9 / 0.1%; drooling 65 / 34 / 0.9 / 0.1%. Floors are applied cumulatively, never as a replacement that lowers urgency.</p><p>All definitions, thresholds, safety rules and time bands are illustrative, not care recommendations.</p></details>
+                <span className="eyebrow">EXAMPLE POLICY · SEPARATE FROM THE NETWORK</span><h2>How does acuity inform disposition?</h2>
+                <p className="policy-summary">Acuity is the network’s estimate of urgency. Disposition is the separate policy’s example action or time band, based on acuity and safety rules.</p>
+                <div className="disposition-result"><span className="badge">{outcome.band}</span><h3>{outcome.action}</h3><p>{outcome.band === 'Routine or self-care'
+                  ? `No safety rule applied. Immediate, Urgent, and Soon total ${((adjusted[0] + adjusted[1] + adjusted[2]) * 100).toFixed(2)}%, below the example 40% threshold.`
+                  : outcome.reason}</p></div>
+                <div className="adjusted-distribution"><h3>Current acuity estimates</h3><p>{override ? 'Includes the active safety adjustment.' : 'Based on answers entered so far.'}</p>{BY_ID.acuity.states.map((state, i) => <div key={state}><span>{state}</span><strong>{percent(adjusted[i])}</strong></div>)}</div>
+                <div className="policy-thresholds">
+                  <h3>Example thresholds (synthetic)</h3>
+                  <p>Safety rules can adjust the estimates before these checks. Rules are checked in order; an earlier match takes priority.</p>
+                  <ul>
+                    <li><strong>Immediate:</strong> Immediate acuity is at least 20%, or a breathing / drooling safety override applies.</li>
+                    <li><strong>Urgent:</strong> Immediate + Urgent is at least 35%, or a fluids safety override applies.</li>
+                    <li><strong>Soon:</strong> Immediate + Urgent + Soon is at least 40%.</li>
+                    <li><strong>Routine:</strong> none of the above applies.</li>
+                  </ul>
+                </div>
+                <p className="small">These example rules and actions are not care advice.</p>
+                <details className="technical-details"><summary>Example safety-adjustment values</summary><p>Safety rules set minimum acuity estimates (Immediate / Urgent / Soon / Routine): breathing 98 / 1.5 / 0.4 / 0.1%; fluids 35 / 64 / 0.9 / 0.1%; drooling 65 / 34 / 0.9 / 0.1%. They can only raise the estimate, never lower it.</p><p>All numbers and time bands are examples, not care guidance.</p></details>
               </section>
             </aside>
           </div>}
 
           {tab === 'comparison' && <Comparison evidence={evidence} />}
           {tab === 'principles' && <section className="card principles">
-            <span className="eyebrow">A SHARED UNDERSTANDING</span><h2>What the demonstration represents</h2>
+            <span className="eyebrow">THE BASICS</span><h2>How this demonstration works</h2>
             <div className="principles-grid">
-              <article><Network size={24} /><h3>A model of dependencies</h3><p>Every node is mathematically a random variable. “Risk factor”, “hidden condition”, “symptom” and “severity modifier” describe a variable’s role. A feature can be both a symptom and an indicator of severity.</p><p>This directed acyclic graph is not a category hierarchy. Arrows are probabilistic dependencies, not question order. Bayesian inference lets observed evidence update beliefs in the reverse direction of an arrow.</p></article>
-              <article><LockKeyhole size={24} /><h3>Fixed model, changing assessment</h3><p><strong>Fixed:</strong> graph structure, node states, conditional probability tables, evidence mappings and model version.</p><p><strong>Changing:</strong> patient evidence, posterior probabilities, uncertainty, next-question ranking and estimated acuity distribution.</p><p>Live answers do not update or train this model. Corrections trigger a fresh calculation from the full current evidence set.</p></article>
-              <article><ShieldAlert size={24} /><h3>Urgency is not diagnosis</h3><p>Two patients can both have a sore throat. One may be able to drink normally with low acuity. Another may have high acuity because of breathing difficulty or inability to swallow fluids.</p><p>A high condition probability is not a confirmed diagnosis. The full acuity distribution represents uncertainty, not clinical approval.</p></article>
-              <article><FlaskConical size={24} /><h3>Deliberately synthetic</h3><p>The final network structure, node states, probabilities, acuity definitions and clinical rules would require clinical agreement and validation.</p><p>These numbers are constructed for onboarding, not derived from patient data. Other causes of sore throat, clinical context and real-world safeguards are outside this prototype.</p><p>Age categories are illustrative; no actual patient age boundaries are claimed.</p></article>
+              <article><Network size={24} /><h3>What the network shows</h3><p>Each circle is a feature or possible condition. Arrows show how these may be related; they do not show which question comes first.</p><p>An answer can change estimates elsewhere in the network, even when the connecting arrow points the other way. A feature can also relate to more than one thing.</p></article>
+              <article><LockKeyhole size={24} /><h3>Answers change; the model stays fixed</h3><p>The network, its possible answers, and its numbers stay the same. The patient’s answers and the estimates based on them change.</p><p>Entering an answer does not train the model. Changing an answer recalculates the estimates using all current answers.</p></article>
+              <article><ShieldAlert size={24} /><h3>Urgency is not a diagnosis</h3><p>Two people with a sore throat can have different levels of urgency. Trouble breathing or swallowing fluids may point to a greater need for care.</p><p>A likely condition is not a confirmed diagnosis. The urgency estimates show uncertainty; they are not medical approval.</p></article>
+              <article><FlaskConical size={24} /><h3>Made-up example data</h3><p>The numbers and rules are examples created for onboarding, not taken from patient data. They need clinical review and testing before any real use.</p><p>This demo leaves out other causes and much of the context needed in real care. The age groups are examples, not clinical cut-offs.</p></article>
             </div>
-            <div className="info-note"><strong>Example:</strong> “Breathing difficulty” is an observable clinical feature. Once the patient answers the relevant question, that node becomes observed evidence. The answer may then change probability distributions for hidden conditions and acuity.</div>
+            <div className="info-note"><strong>Example:</strong> An answer about breathing becomes evidence in the network. The network then updates its estimates for related conditions and urgency.</div>
           </section>}
 
           <footer className="content-footer"><span><FlaskConical size={12} />Synthetic model · sore-throat use case only</span><span>Clinical structure, probabilities and rules require agreement and validation.</span></footer>
